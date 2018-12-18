@@ -1,0 +1,219 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+ <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+    crossorigin="anonymous">
+</head>	
+<body>
+
+<TABLE id="displayNumbersIntervalBox" WIDTH = "150" HEIGHT = "100" ALIGN = "center" BGCOLOR = "blue" CELLPADDING = "2" BORDER= "3" BORDER-STYLE = "ridge" hidden >
+<tr>
+<td>
+        <CENTER>
+          <Font id="displayNumbersIntervalElement" Color = "white" SIZE = "25"></Font>
+        </CENTER>
+		
+		</td>
+		</tr>
+</TABLE>
+
+  <div id="gameContainer">
+
+    <div id="startBox" class="box">
+      <div class="card m-3">
+        <div class="card-body text-center">
+          <h4 class="card-title">
+            Please enter the numbers in the order that they appeared on the screen.
+          </h4>
+          <h5>When ready press  <button class="btn btn-success" onclick="start()" id="startButton">Start</button></h5>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body text-center" id="answerBox" hidden>
+      <input type="text" class="form-group mx-sm-5 mb-5" style= "text-center; width: 220px;" placeholder="Please enter your numbers" id="answerInput">
+      <button type="submit" class="btn btn-primary" onclick="submitAnswer()" id="submitButton">
+        Submit
+      </button>
+    </div>
+
+    <div id="resultsBox" class="text-center m-3" hidden
+      <div id="resultDisplay" class="text-center"></div>
+    </div>
+
+
+  </div>
+
+  <p id="characterRight" class="text-center m-3" style="color:Lime;font-size:900%;" hidden >&#10003;</p>
+
+  <p id="characterWrong" class="text-center m-3" style="color:red;font-size:900%;" hidden >&#10008;</p>
+
+
+<script>
+
+const htmlElementIds = {
+  NUMBER_DISPLAY: 'displayNumbersInterval',
+  RESULT_DISPLAY: 'resultDisplay',
+  START_BOX: 'startBox',
+  ANSWER_BOX: 'answerBox',
+  ANSWER_INPUT: 'answerInput',
+  RESULTS_BOX: 'resultsBox',
+  NUMBER_DISPLAY_EL: 'displayNumbersIntervalElement',
+  NUMBER_DISPLAY_BOX: 'displayNumbersIntervalBox',
+  SUBMIT_BUTTON: 'submitButton',
+  START_BUTTON: 'startButton',
+  CHARACTER_CORRECT: 'characterRight',
+  CHARACTER_WRONG: 'characterWrong'
+};
+
+const htmlElements = {
+  NUMBER_DISPLAY: document.getElementById(htmlElementIds.NUMBER_DISPLAY),
+  RESULT_DISPLAY: document.getElementById(htmlElementIds.RESULT_DISPLAY),
+  ANSWER_BOX: document.getElementById(htmlElementIds.ANSWER_BOX),
+  START_BOX: document.getElementById(htmlElementIds.START_BOX),
+  RESULTS_BOX: document.getElementById(htmlElementIds.RESULTS_BOX),
+  NUMBER_DISPLAY_BOX: document.getElementById(htmlElementIds.NUMBER_DISPLAY_BOX),
+  NUMBER_DISPLAY_EL: document.getElementById(htmlElementIds.NUMBER_DISPLAY_EL),
+  ANSWER_INPUT: document.getElementById(htmlElementIds.ANSWER_INPUT),
+  SUBMIT_BUTTON: document.getElementById(htmlElementIds.SUBMIT_BUTTON),
+  START_BUTTON: document.getElementById(htmlElementIds.START_BUTTON),
+  CHARACTER_CORRECT: document.getElementById(htmlElementIds.CHARACTER_CORRECT),
+  CHARACTER_WRONG: document.getElementById(htmlElementIds.CHARACTER_WRONG)
+};
+
+let currentGameNumbers = {
+  shown: [],
+  userInput: []
+}
+
+function areAnswersCorrect(userAnswersString, displayNumberArray) {
+  return userAnswersString === displayNumberArray.join('');
+}
+
+
+function getRandomNumbers(countOfNumbersToDisplay) {
+  let nums = [];
+
+  for (i = 0; i < countOfNumbersToDisplay; i++) {
+    let randNum = Math.floor((Math.random() * 10));
+    if (nums.indexOf(randNum) < 0) {
+      nums[i] = randNum;
+    } else {
+      i = i - 1;
+    }
+  }
+  return nums;
+}
+
+	function start() {
+	htmlElements.START_BOX.hidden = false;
+	htmlElements.NUMBER_DISPLAY_BOX.hidden = !htmlElements.NUMBER_DISPLAY_BOX.hidden;
+	let countOfNumbersToDisplay = 3;
+	let nums = getRandomNumbers(countOfNumbersToDisplay);
+	var i = 0;
+  
+ var displayNumbersInterval = setInterval(function () {
+    let isDoneDisplayingAllTheNumbers = i > nums.length - 1;
+	
+    if (isDoneDisplayingAllTheNumbers) {
+      clearInterval(displayNumbersInterval);
+      htmlElements.NUMBER_DISPLAY_BOX.hidden = 'hidden';
+      htmlElements.ANSWER_BOX.hidden = !htmlElements.ANSWER_BOX.hidden;
+	  
+	  currentGameNumbers.shown = nums;
+	  
+    } else {
+      display(nums[i++]);
+    }
+  }, 1000);
+  
+}
+
+
+
+
+
+
+
+
+
+function display(number) {
+  htmlElements.NUMBER_DISPLAY_EL.innerHTML = number;
+}
+
+function submitAnswer() {
+  htmlElements.ANSWER_BOX.hidden = "hidden"
+  htmlElements.RESULTS_BOX.hidden = false;
+  currentGameNumbers.userInput = htmlElements.ANSWER_INPUT.value;
+  let isCorrect = areAnswersCorrect(currentGameNumbers.userInput, currentGameNumbers.shown);
+  
+    var displayAnswerCharecters = setInterval(function () {
+   
+  if (isCorrect) {
+ // https://www.digitalocean.com/community/tutorials/how-to-define-functions-in-javascript
+    console.log(`Answers are correct: ${isCorrect}`);
+    htmlElements.CHARACTER_CORRECT.hidden = !htmlElements.CHARACTER_CORRECT.hidden;
+	 
+	
+  } else {
+    console.log('Wrong fgt');
+    htmlElements.CHARACTER_WRONG.hidden = !htmlElements.CHARACTER_WRONG.hidden;
+	
+  }
+clearInterval(displayAnswerCharecters);
+    }, 1000);
+	  
+
+  clearAnswer();
+  clearCurrentGameNumbers();
+  start();
+}
+
+function text() {
+  htmlElements.START_BOX.hidden = 'hidden';
+  htmlElements.NUMBER_DISPLAY_BOX.hidden = !htmlElements.NUMBER_DISPLAY_BOX.hidden;
+}
+
+function clearAnswer() {
+  htmlElements.ANSWER_INPUT.value = '';
+}
+
+function clearCurrentGameNumbers() {
+  currentGameNumbers.shown = null;
+  currentGameNumbers.userInput = null;
+  
+}
+
+
+
+
+function setDisplayedNumber(num) {
+  htmlElements.NUMBER_DISPLAY.innerHTML = num;
+}
+
+
+function runIteration(iterationNumbers) {
+  displayElement(htmlElements.NUMBER_DISPLAY_BOX, true);
+  displayElement(htmlElements.RESULTS_BOX, false);
+  displayTask(iterationNumbers);
+}
+
+
+function toggleElementHidden(el) {
+  htmlElements.hidden = !htmlElements.hidden;
+}
+
+</script>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
