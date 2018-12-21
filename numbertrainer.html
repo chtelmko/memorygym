@@ -1,180 +1,198 @@
 <!DOCTYPE html>
-<html>
-//https://www.w3schools.com/css/css_align.asp
+<html lang="en-US">
 <head>
+  <title>Memory Trainer</title>
   <style>
-    div{
-      border: 1px gray solid;
-      margin:5px;
+    div {
+      text-align: center;
+      margin: 5px;
     }
-    .square{
-      margin: auto;
-      width: 250px;
-      height: 250px;
-      border: 2px solid blue;
-      background-color: dodgerblue;
-      font-weight: bold;
+    #container {
+      border: 1px gray solid;
     }
 
+    #numberDisplay {
+      margin: auto;
+      background-color: #a9a9a9;
+      width: 140px;
+      height: 140px;
+      font-size: 120px;
+    }
+
+    #resultDisplay {
+      margin: auto;
+      width: 140px;
+      height: 140px;
+      font-size: 120px;
+    }
+
+    .correct {
+      color: green;
+    }
+
+    .wrong {
+      color: red;
+    }
 
   </style>
-</head>
-<body>
-<div style ="text-align: center">
 
-  <div id="startingInfo">
+</head>
+
+<body>
+<div id="container">
+  <h2 class="correct">Memory Trainer</h2>
+
+
+  <div id="instructionDisplay">
     <h3>Please enter the numbers in the order that they appeared on the screen.</h3>
-    <p>When ready press  <input id="startGame" type="button" onclick="start()" value="Start"></p>
+    <p>When ready press <input id="startGame" type="button" onclick="start()" value="Start"></p>
   </div>
-  <div id="numberDisplaySquare" class= "square" hidden>
-    <Font id="displayNumbersIntervalElement" Color = "white" SIZE = "999" hidden></Font>
+
+  <div id="numberDisplay" hidden>
+
   </div>
-  <div id="answerBox" hidden>
-    <form>
-      <input id="answerInput" type="text" placeholder ="Please enter your numbers:" >
-      <button id="submitButton" onclick="submitAnswer()" >
-        Submit
-      </button>
-    </form>
+
+  <div id="answerDisplay" hidden>
+
+    <input id="answerInput" type="text" placeholder="Please enter your numbers:">
+    <button id="submitButton" onclick="submitAnswer()">
+      Submit
+    </button>
   </div>
-  <div id="resultDisplay" >
-    <p  id="characterRight"  style="color:Lime;font-size:900%;" hidden >&#10003;</p>
-    <p  t id="characterWrong" style="color:red;font-size:900%;" hidden >&#10008;</p>
+
+  <div id="resultDisplay" hidden>
+
   </div>
 
 </div>
 
 
-<script>
+<script type="text/javascript">
+
+  const resultCharacterToDisplay = {
+    CORRECT: '✔',
+    WRONG: '✖'
+  };
+
+  const resultClassNames = {
+    CORRECT: 'correct',
+    WRONG: 'wrong'
+  };
 
   const htmlElementIds = {
-    START_BOX_ONE: 'startingInfo',
-    START_BUTTON: 'startGame',
-    NUMBER_DISPLAY: 'numberDisplaySquare',
-    NUMBER_DISPLAY_EL: 'displayNumbersIntervalElement',
-    ANSWER_BOX: 'answerBox',
-    ANSWER_INPUT: 'answerInput',
-    SUBMIT_BUTTON: 'submitButton',
-    CHARACTER_CORRECT: 'characterRight',
-    CHARACTER_WRONG: 'characterWrong'
+    INSTRUCTION_DISPLAY: 'instructionDisplay',
+    RESULT_DISPLAY: 'resultDisplay',
+    NUMBER_DISPLAY: 'numberDisplay',
+    ANSWER_DISPLAY: 'answerDisplay',
+    ANSWER_INPUT: 'answerInput'
+
   };
 
   const htmlElements = {
-    START_BOX_ONE: document.getElementById(htmlElementIds.START_BOX_ONE),
-    START_BUTTON: document.getElementById(htmlElementIds.START_BUTTON),
+    INSTRUCTION_DISPLAY: document.getElementById(htmlElementIds.INSTRUCTION_DISPLAY),
+    RESULT_DISPLAY: document.getElementById(htmlElementIds.RESULT_DISPLAY),
     NUMBER_DISPLAY: document.getElementById(htmlElementIds.NUMBER_DISPLAY),
-    NUMBER_DISPLAY_EL: document.getElementById(htmlElementIds.NUMBER_DISPLAY_EL),
-    ANSWER_BOX: document.getElementById(htmlElementIds.ANSWER_BOX),
-    ANSWER_INPUT: document.getElementById(htmlElementIds.ANSWER_INPUT),
-    SUBMIT_BUTTON: document.getElementById(htmlElementIds.SUBMIT_BUTTON),
-    CHARACTER_CORRECT: document.getElementById(htmlElementIds.CHARACTER_CORRECT),
-    CHARACTER_WRONG: document.getElementById(htmlElementIds.CHARACTER_WRONG)
+    ANSWER_DISPLAY: document.getElementById(htmlElementIds.ANSWER_DISPLAY),
+    ANSWER_INPUT: document.getElementById(htmlElementIds.ANSWER_INPUT)
   };
+
+  const trainerConfig = {
+    countOfNumbersToDisplay : 3
+  }
 
   let currentGameNumbers = {
     shown: [],
-    userInput: []
+    userInput: ""
+  }
+
+  function start() {
+
+    htmlElements.INSTRUCTION_DISPLAY.hidden = true;
+    htmlElements.NUMBER_DISPLAY.hidden = false;
+
+
+    let randomNums = getRandomNumbers(trainerConfig.countOfNumbersToDisplay);
+    currentGameNumbers.shown = randomNums;
+
+    var idxOfNumToDisplay = 0;
+
+    var displayNumbersInterval = setInterval(function () {
+
+      let isDoneDisplayingAllTheNumbers = idxOfNumToDisplay > randomNums.length - 1;
+
+      if (!isDoneDisplayingAllTheNumbers) {
+        let currentNumToDisplay = randomNums[idxOfNumToDisplay];
+        displayNumber(currentNumToDisplay);
+        idxOfNumToDisplay++;
+      }
+      else {
+        clearInterval(displayNumbersInterval);
+
+        hideNumberDisplay();
+      }
+
+    }, 1000);
+  }
+
+
+  function submitAnswer() {
+
+    htmlElements.ANSWER_DISPLAY.hidden = true;
+
+    currentGameNumbers.userInput = htmlElements.ANSWER_INPUT.value;
+    let isCorrect = areAnswersCorrect(currentGameNumbers.userInput, currentGameNumbers.shown);
+
+    DisplayResult(isCorrect);
+
+    setTimeout(function () {
+      htmlElements.RESULT_DISPLAY.hidden = true;
+    }, 5000);
+  }
+
+  function hideNumberDisplay() {
+    htmlElements.NUMBER_DISPLAY.hidden = true;
+    htmlElements.ANSWER_DISPLAY.hidden = false;
+  }
+
+  function displayNumber(number) {
+    htmlElements.NUMBER_DISPLAY.innerHTML = number;
+  }
+
+  function DisplayResult(isResultCorrect) {
+
+    htmlElements.RESULT_DISPLAY.hidden = false;
+
+    if (isResultCorrect) {
+      htmlElements.RESULT_DISPLAY.innerHTML = resultCharacterToDisplay.CORRECT;
+      htmlElements.RESULT_DISPLAY.className = 'correct';
+    } else {
+      htmlElements.RESULT_DISPLAY.innerHTML = resultCharacterToDisplay.WRONG;
+      htmlElements.RESULT_DISPLAY.className = 'wrong';
+    }
+  }
+
+  function areAnswersCorrect(userAnswersString, displayNumberArray) {
+    let displayedString = displayNumberArray.join('');
+    //console.log(userAnswersString + " : " + displayedString);
+    return userAnswersString === displayedString;
   }
 
 
   function getRandomNumbers(countOfNumbersToDisplay) {
     let nums = [];
 
-    for (i = 0; i < countOfNumbersToDisplay; i++) {
+    for (let i = 0; i < countOfNumbersToDisplay; i++) {
       let randNum = Math.floor((Math.random() * 10));
       if (nums.indexOf(randNum) < 0) {
         nums[i] = randNum;
       }
       else {
-        i = i - 1;
+        i--;
       }
     }
     return nums;
   }
 
-
-
-  function start() {
-    htmlElements.NUMBER_DISPLAY.hidden = false;
-    htmlElements.START_BOX_ONE.hidden = true;
-    htmlElements.NUMBER_DISPLAY.hidden = false;
-    htmlElements.NUMBER_DISPLAY_EL.hidden = false;
-
-    let countOfNumbersToDisplay = 3;
-
-    let randomNums = getRandomNumbers(countOfNumbersToDisplay);
-
-    var idxOfNumToDisplay = 0;
-
-    var displayNumbersInterval = setInterval(function () {
-      let isDoneDisplayingAllTheNumbers = idxOfNumToDisplay > randomNums.length -1;
-
-      if (!isDoneDisplayingAllTheNumbers) {
-        let currentNumToDisplay = randomNums[idxOfNumToDisplay];
-        display(currentNumToDisplay);
-        idxOfNumToDisplay++;
-      }
-      else {
-        clearInterval(displayNumbersInterval);
-        currentGameNumbers.shown = randomNums;
-        hideNumberDisplay();
-      }
-
-    }, 1000);
-
-  }
-
-
-
-  function hideNumberDisplay(){
-    htmlElements.NUMBER_DISPLAY.hidden = true;
-    htmlElements.ANSWER_BOX.hidden = false;
-  }
-
-
-  function submitAnswer() {
-    currentGameNumbers.userInput = htmlElements.ANSWER_INPUT.value;
-    let isCorrect = areAnswersCorrect(currentGameNumbers.userInput, currentGameNumbers.shown);
-
-    var elementToDisplay = undefined;
-    if (isCorrect == true) {
-      elementToDisplay = htmlElements.CHARACTER_CORRECT;
-    } else {
-      elementToDisplay = htmlElements.CHARACTER_WRONG;
-    }
-    htmlElements.ANSWER_BOX.hidden = true;
-    elementToDisplay.hidden = false;
-
-  }
-
-
-
-
-  function areAnswersCorrect(userAnswersString, displayNumberArray) {
-    return userAnswersString === displayNumberArray.join('');
-  }
-
-  function clearAnswer() {
-    htmlElements.ANSWER_INPUT.value = '';
-  }
-
-  function clearCurrentGameNumbers() {
-    currentGameNumbers.shown = null;
-    currentGameNumbers.userInput = null;
-
-  }
-
-  function setDisplayedNumber(num) {
-    htmlElements.NUMBER_DISPLAY.innerHTML = num;
-  }
-
-  function display(number) {
-    htmlElements.NUMBER_DISPLAY_EL.innerHTML = number;
-  }
-
-  function toggleElementHidden(el) {
-    htmlElements.hidden = !htmlElements.hidden;
-  }
 
 </script>
 
