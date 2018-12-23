@@ -97,7 +97,8 @@
   };
 
   const trainerConfig = {
-    countOfNumbersToDisplay : 3
+    countOfNumbersToDisplay : 3,
+    timeBetweenNumberDisplay: 1000
   }
 
   let currentGameNumbers = {
@@ -131,7 +132,7 @@
         hideNumberDisplay();
       }
 
-    }, 1000);
+    },trainerConfig.timeBetweenNumberDisplay);
   }
 
 
